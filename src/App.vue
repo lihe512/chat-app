@@ -1,11 +1,11 @@
 <script setup>
 import { onMounted } from 'vue';
 import { useChat } from '@/composables/useChat';
-import ChatSidebar from './components/Main/ChatSidebar.vue';
-import ChatInput from './components/Main/ChatInput.vue';
-import FloatingButton from './components/Main/FloatingButton.vue';
-import HeaderBar from './components/Main/HeaderBar.vue';
-import ChatBox from './components/Main/ChatBox.vue';
+import ChatSidebar from './components/MainPart/ChatSidebar.vue';
+import ChatInput from './components/MainPart/ChatInput.vue';
+import FloatingButton from './components/MainPart/FloatingButton.vue';
+import HeaderBar from './components/MainPart/HeaderBar.vue';
+import ChatBox from './components/MainPart/ChatBox.vue';
 
 // 引入更多图标
 import { 
