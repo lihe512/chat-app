@@ -1,6 +1,8 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useChat } from '@/composables/useChat'
+import ChatCard from '@/components/MessageStyle/ChatCard.vue'
+import MarkdownRenderer from '@/components/MessageStyle/MarkdownRenderer.vue'
 // 引入更多图标
 import {
   Loader2, User, Bot,
@@ -17,7 +19,6 @@ onMounted(() => {
 <template>
    <div id="chat-container" class="flex-1 overflow-y-auto p-4 scroll-smooth">
         <div class="max-w-3xl mx-auto space-y-6 pb-4">
-
           <div v-if="messages.length === 0" class="text-center mt-20 text-gray-400">
             <Bot class="w-16 h-16 mx-auto mb-4 opacity-20" />
             <p>你好！我是 AI 助手，请问有什么可以帮你的？</p>
@@ -40,9 +41,11 @@ onMounted(() => {
                 <div v-if="msg.status === 'loading'" class="flex items-center gap-2">
                    <Loader2 class="animate-spin w-4 h-4" /> 思考中...
                 </div>
-                <div v-else class="whitespace-pre-wrap">
+                <ChatCard v-else-if="msg.type === 'card'" :data="msg.cardData" />
+                <MarkdownRenderer v-else :content="msg.content" />
+                <!-- <div v-else class="whitespace-pre-wrap">
                   {{ msg.content }}
-              </div>
+                </div> -->
               </div>
             </div>
           </div>
