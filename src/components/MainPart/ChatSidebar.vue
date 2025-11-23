@@ -1,8 +1,8 @@
 <script setup>
-  import { ref,onMounted } from 'vue'
+  import { onMounted } from 'vue'
   import { useChat } from '@/composables/useChat'
-  import { 
-  Plus, MessageSquare, Trash2, 
+  import {
+  Plus, MessageSquare, Trash2,
 } from 'lucide-vue-next'
   const {
     sessions,
@@ -11,10 +11,11 @@
     switchSession,
     createNewSession,
     deleteSession,
+    isSidebarOpen
   } = useChat()
 
-  // 控制侧边栏是否折叠
-  const isSidebarOpen = ref(true)
+  // // 控制侧边栏是否折叠
+  // const isSidebarOpen = ref(true)
   // 初始化
   onMounted(() => {
     init()
@@ -22,12 +23,12 @@
 
 </script>
 <template>
-  <aside 
+  <aside
       class="bg-gray-900 text-gray-100 flex flex-col transition-all duration-300 ease-in-out border-r border-gray-800"
       :class="isSidebarOpen ? 'w-64 translate-x-0' : 'w-0 -translate-x-full opacity-0 overflow-hidden'"
     >
       <div class="p-4 border-b border-gray-800">
-        <button 
+        <button
           @click="createNewSession"
           class="w-full flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition-colors"
         >
@@ -40,9 +41,9 @@
         <div v-if="sessions.length === 0" class="text-gray-500 text-center text-sm mt-10">
           暂无历史记录
         </div>
-        
-        <div 
-          v-for="session in sessions" 
+
+        <div
+          v-for="session in sessions"
           :key="session.id"
           @click="switchSession(session.id)"
           class="group flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors text-sm"
@@ -52,8 +53,8 @@
             <MessageSquare class="w-4 h-4 flex-shrink-0" />
             <span class="truncate">{{ session.title }}</span>
           </div>
-          
-          <button 
+
+          <button
             @click="(e) => deleteSession(session.id, e)"
             class="opacity-0 group-hover:opacity-100 hover:text-red-400 transition-opacity p-1"
           >

@@ -1,12 +1,14 @@
 import { ref } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
 const STORAGE_KEY = 'chat-sessions-v1'
-export function useChat() { 
-  // 定义会话列表变量
+// 定义会话列表变量
   const sessions = ref([])//存储所有会话列表
   const currentSessionId = ref(null)//当前选中的会话ID
   const messages = ref([])//当前会话的消息列表
   const isLoading = ref(false)//加载状态
+  // 侧边栏状态
+  const isSidebarOpen = ref(true)
+export function useChat() {
 
   // 读取本地存储
   const init = ()=>{
@@ -51,7 +53,7 @@ export function useChat() {
   // 删除会话
   const deleteSession = (id,e) =>{
     //阻止事件冒泡，防止触发切换会话
-    e.stopPropagation() 
+    e.stopPropagation()
     // 从列表中将这个id的会话删除
     sessions.value = sessions.value.filter(s=>s.id!==id)
     // 如果删除的是当前选中的会话，那么就会回到第一个对话
@@ -109,6 +111,7 @@ export function useChat() {
     createNewSession,
     switchSession,
     deleteSession,
-    saveToStorage
+    saveToStorage,
+    isSidebarOpen
   }
 }
