@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref ,nextTick} from 'vue'
 import { v4 as uuidv4 } from 'uuid'
 const STORAGE_KEY = 'chat-sessions-v1'
 // 定义会话列表变量
@@ -6,7 +6,7 @@ const STORAGE_KEY = 'chat-sessions-v1'
   const currentSessionId = ref(null)//当前选中的会话ID
   const messages = ref([])//当前会话的消息列表
   const isLoading = ref(false)//加载状态
-  // 侧边栏状态
+  // 侧边栏状态，也可以写道一个新的composable文件中
   const isSidebarOpen = ref(true)
 export function useChat() {
 
@@ -71,9 +71,65 @@ export function useChat() {
   const saveToStorage = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions.value));
   };
+  // 添加消息
+  const sendMessage = async (content)=>{
+    if(!content.trim() || isLoading.value) return
+    // 用户消息
+    messages.value.push({
+      id: uuidv4(),
+      role: 'user',
+      content:content,
+      status:'done',
+      type:'text',
+      timestamp: Date.now()
+    })
+    // 滚动到底部
+    scrollToBottom()
+    // ai消息
+    const aiMsgId = uuidv4()
+    isLoading.value = true
+    messages.value.push({
+      id: aiMsgId,
+      role: 'assistant',
+      content:'',
+      status:'loading',
+      type:'text',
+      timestamp: Date.now()
+    })
+    scrollToBottom()
+    await mockStreamResponse(aiMsgId,content)
+  }
+  // 滚动到底部
+  const scrollToBottom = () => {
+    nextTick(() => {
+      const container = document.getElementById('chat-container');
+      if (container) container.scrollTop = container.scrollHeight;
+    });
+  };
+    // 模拟流式回复
+  const mockStreamResponse = async (msgId, userContent) => {
+    const targetMsg = messages.value.find(m => m.id === msgId);
+    if (!targetMsg) return;
 
+    setTimeout(() => { targetMsg.status = 'streaming'; }, 600);
 
+    // 模拟内容
+    const fullText = `针对“${userContent}”的回复：\n\n这是多会话版本的演示。你可以点击左侧的新建对话来开启新的话题。\n\n- 支持 Markdown\n- 支持代码块\n\n\`\`\`js\nconst happy = true;\n\`\`\``;
 
+    let currentIndex = 0;
+    const interval = setInterval(() => {
+      if (currentIndex < fullText.length) {
+        targetMsg.content += fullText[currentIndex];
+        currentIndex++;
+        scrollToBottom();
+      } else {
+        clearInterval(interval);
+        targetMsg.status = 'done';
+        isLoading.value = false;
+        saveToStorage(); // 结束后保存
+      }
+    }, 30);
+  };
 
 
 
@@ -112,6 +168,8 @@ export function useChat() {
     switchSession,
     deleteSession,
     saveToStorage,
-    isSidebarOpen
+    isSidebarOpen,
+    sendMessage,
+    mockStreamResponse
   }
 }
