@@ -1,15 +1,15 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useChat } from '@/composables/useChat'
+import { useGlobalControl } from '@/composables/globalControl'
 // 引入更多图标
 import {
  PanelLeftClose, PanelLeftOpen
 } from 'lucide-vue-next'
 const {
   init,
-  isSidebarOpen
 } = useChat()
-// const isSidebarOpen = ref(true)  // 控制侧边栏折叠
+const { isSidebarOpen } = useGlobalControl()
 onMounted(() => {
   init()  // 初始化加载历史
 })

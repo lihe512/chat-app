@@ -9,8 +9,7 @@ const LAST_SESSION_KEY = 'last-active-session-id'//存储最后显示的会话ID
   const currentSessionId = ref(null)//当前选中的会话ID
   const messages = ref([])//当前会话的消息列表
   const isLoading = ref(false)//加载状态
-  // 侧边栏状态，也可以写道一个新的composable文件中
-  const isSidebarOpen = ref(true)
+
 export function useChat() {
 
   // 读取本地存储
@@ -287,7 +286,7 @@ export function useChat() {
     switchSession,
     deleteSession,
     saveToStorage,
-    isSidebarOpen,
+    // isSidebarOpen,
     sendMessage,
     mockStreamResponse,
     refreshCurrentSession,

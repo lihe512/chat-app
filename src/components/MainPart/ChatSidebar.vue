@@ -1,6 +1,7 @@
 <script setup>
   import { onMounted } from 'vue'
   import { useChat } from '@/composables/useChat'
+  import { useGlobalControl } from '@/composables/globalControl'
   import {
   Plus, MessageSquare, Trash2,
 } from 'lucide-vue-next'
@@ -10,10 +11,9 @@
     init,
     switchSession,
     createNewSession,
-    deleteSession,
-    isSidebarOpen
+    deleteSession
   } = useChat()
-
+  const { isSidebarOpen} = useGlobalControl()
   // // 控制侧边栏是否折叠
   // const isSidebarOpen = ref(true)
   // 初始化
