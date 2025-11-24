@@ -1,6 +1,7 @@
 import { ref ,nextTick,watch} from 'vue'
 import { v4 as uuidv4 } from 'uuid'
 const STORAGE_KEY = 'chat-sessions-v1'
+const LAST_SESSION_KEY = 'last-active-session-id'//存储最后显示的会话ID，方便刷新的时候仍保留在这个会话
 // 定义会话列表变量
   const sessions = ref([])//存储所有会话列表
   const currentSessionId = ref(null)//当前选中的会话ID
@@ -16,11 +17,17 @@ export function useChat() {
     if(saved){
       sessions.value = JSON.parse(saved)
     }
+    const lastId = localStorage.getItem(LAST_SESSION_KEY)
     // 如果有会话，默认选中第一个
     if(sessions.value.length > 0){
-      // 选中这个会话
+      if(lastId && sessions.value.find(s=>s.id===lastId)){
+        switchSession(lastId)
+      }
+      else {
+        // 选中这个会话
       // currentSessionId.value = sessions.value[0].id
       switchSession(sessions.value[0].id)
+      }
     }
     else{
       // 没有会话，创建一个默认会话
@@ -48,6 +55,8 @@ export function useChat() {
     if(session){
       // 更新消息列表
       messages.value = session.messages
+      // 每次切换会话都保存ID，方便刷新时恢复
+      localStorage.setItem(LAST_SESSION_KEY, id)
     }
   }
   // 删除会话
@@ -145,7 +154,10 @@ export function useChat() {
       saveToStorage();
     }
   }, { deep: true });
-
+  // 刷新当前会话
+  const refreshCurrentSession = ()=>{
+    window.location.reload()
+  }
 
 
 
@@ -184,6 +196,7 @@ export function useChat() {
     saveToStorage,
     isSidebarOpen,
     sendMessage,
-    mockStreamResponse
+    mockStreamResponse,
+    refreshCurrentSession
   }
 }

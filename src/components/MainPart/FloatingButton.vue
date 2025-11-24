@@ -7,7 +7,7 @@ import {
 } from 'lucide-vue-next';
 const {
   init,
-  clearCurrentSession,
+  refreshCurrentSession,
   downloadChat
 } = useChat();
 onMounted(() => {
@@ -19,7 +19,7 @@ onMounted(() => {
   <div class="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-20">
         <div class="relative group">
            <button
-            @click="clearCurrentSession"
+            @click="refreshCurrentSession"
             class="w-10 h-10 bg-white rounded-full shadow-lg border border-gray-100 flex items-center justify-center text-gray-600 hover:text-blue-600 hover:scale-110 transition-all"
             title="刷新"
           >
