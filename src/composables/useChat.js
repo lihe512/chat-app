@@ -259,6 +259,22 @@ export function useChat() {
       a.click()
     }
   }
+  const regenerateMessage = async (aiMsgId) => {
+    if(isLoading.value) return
+    const aiMsgIndex = messages.value.findIndex(m => m.id === aiMsgId)
+    if(aiMsgIndex === -1) return
+    const userMsg = messages.value[aiMsgIndex - 1]
+    if(!userMsg || userMsg.role !== 'user') return//找不到对应的用户消息
+
+    const aiMsg = messages.value[aiMsgIndex]
+    // 重置AI消息
+    aiMsg.content = ''
+    // aiMsg.status = 'loading'
+    // isLoading.value = true
+    // scrollToBottom()
+    // await mockStreamResponse(aiMsg.id, userMsg.content)
+    await sendMessage(userMsg.content);
+  }
   return {
     sessions,
     currentSessionId,
@@ -273,6 +289,7 @@ export function useChat() {
     sendMessage,
     mockStreamResponse,
     refreshCurrentSession,
-    downloadChat
+    downloadChat,
+    regenerateMessage
   }
 }
