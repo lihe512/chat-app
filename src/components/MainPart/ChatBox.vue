@@ -18,7 +18,7 @@ onMounted(() => {
 
 <template>
    <div id="chat-container" class="flex-1 overflow-y-auto p-4 scroll-smooth">
-        <div class="max-w-3xl mx-auto space-y-6 pb-4">
+        <div class="max-w-3xl mx-auto space-y-6 pb-4" id="chat-export-content">
           <div v-if="messages.length === 0" class="text-center mt-20 text-gray-400">
             <Bot class="w-16 h-16 mx-auto mb-4 opacity-20" />
             <p>你好！我是 AI 助手，请问有什么可以帮你的？</p>
