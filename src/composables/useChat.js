@@ -1,4 +1,4 @@
-import { ref ,nextTick} from 'vue'
+import { ref ,nextTick,watch} from 'vue'
 import { v4 as uuidv4 } from 'uuid'
 const STORAGE_KEY = 'chat-sessions-v1'
 // 定义会话列表变量
@@ -130,7 +130,21 @@ export function useChat() {
       }
     }, 30);
   };
-
+   // 监听 messages 变化，自动同步回 sessions 里的数据并保存
+  watch(messages, () => {
+    const session = sessions.value.find(s => s.id === currentSessionId.value);
+    if (session) {
+      session.messages = messages.value;
+      // 简单逻辑：用第一条消息的前10个字作为标题
+      if (session.messages.length > 0 && session.title === '新会话') {
+        const firstMsg = session.messages.find(m => m.role === 'user');
+        if (firstMsg) {
+          session.title = firstMsg.content.slice(0, 10) + (firstMsg.content.length > 10 ? '...' : '');
+        }
+      }
+      saveToStorage();
+    }
+  }, { deep: true });
 
 
 
