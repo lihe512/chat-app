@@ -1,21 +1,21 @@
 <script setup>
-import { onMounted } from 'vue';
-import { useChat } from '@/composables/useChat';
-import ChatSidebar from './components/MainPart/ChatSidebar.vue';
-import ChatInput from './components/MainPart/ChatInput.vue';
-import FloatingButton from './components/MainPart/FloatingButton.vue';
-import HeaderBar from './components/MainPart/HeaderBar.vue';
-import ChatBox from './components/MainPart/ChatBox.vue';
+import { onMounted } from 'vue'
+import { useChat } from '@/composables/useChat'
+import ChatSidebar from './components/MainPart/ChatSidebar.vue'
+import ChatInput from './components/MainPart/ChatInput.vue'
+import FloatingButton from './components/MainPart/FloatingButton.vue'
+import HeaderBar from './components/MainPart/HeaderBar.vue'
+import ChatBox from './components/MainPart/ChatBox.vue'
 
 // 引入更多图标
-import { 
-} from 'lucide-vue-next';
-const { 
+import {
+} from 'lucide-vue-next'
+const {
   init
-} = useChat();
+} = useChat()
 onMounted(() => {
-  init(); // 初始化加载历史
-});
+  init()  // 初始化加载历史
+}) 
 </script>
 
 <template>

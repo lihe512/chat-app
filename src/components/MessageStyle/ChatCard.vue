@@ -4,11 +4,11 @@ defineProps({
     type: Object,
     required: true
   }
-});
+})
 
 const handleClick = (url) => {
-  if (url) window.open(url, '_blank');
-};
+  if (url) window.open(url, '_blank')
+}
 </script>
 
 <template>

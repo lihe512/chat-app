@@ -80,8 +80,8 @@ export function useChat() {
   }
   // 自动保存
   const saveToStorage = () => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions.value));
-  };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions.value))
+  }
   // 添加消息
   const sendMessage = async (content)=>{
     if(!content.trim() || isLoading.value) return
@@ -122,10 +122,10 @@ export function useChat() {
     const targetMsg = messages.value.find(m => m.id === msgId)
     if (!targetMsg) return
 
-    setTimeout(() => { targetMsg.status = 'streaming'; }, 600)
+    setTimeout(() => { targetMsg.status = 'streaming'  }, 600)
 
     // 模拟内容
-    const fullText = `针对“${userContent}”的回复：\n\n这是多会话版本的演示。你可以点击左侧的新建对话来开启新的话题。\n\n- 支持 Markdown\n- 支持代码块\n\n\`\`\`js\nconst happy = true;\n\`\`\``;
+    const fullText = `针对“${userContent}”的回复：\n\n这是多会话版本的演示。你可以点击左侧的新建对话来开启新的话题。\n\n- 支持 Markdown\n- 支持代码块\n\n\`\`\`js\nconst happy = true \n\`\`\``
 
     let currentIndex = 0
     const interval = setInterval(() => {
@@ -164,7 +164,7 @@ export function useChat() {
   const downloadChat = (format) => {
     if (messages.value.length === 0) {
       alert('没有可下载的内容')
-      return;
+      return
     }
     if (format === 'pdf') {
       // PDF下载
@@ -186,39 +186,39 @@ export function useChat() {
       const style = `
         <style>
           pre {
-            white-space: pre-wrap !important;
-            word-wrap: break-word !important;
-            overflow-x: visible !important;
-            background-color: #f6f8fa;
-            padding: 10px;
-            border-radius: 4px;
+            white-space: pre-wrap !important
+            word-wrap: break-word !important
+            overflow-x: visible !important
+            background-color: #f6f8fa
+            padding: 10px
+            border-radius: 4px
           }
           code {
-            font-family: Consolas, Monaco, monospace;
-            font-size: 12px;
-            color: #333;
+            font-family: Consolas, Monaco, monospace
+            font-size: 12px
+            color: #333
           }
           div, p {
-            word-break: break-word;
+            word-break: break-word
           }
           ul, ol, li {
-            list-style: none !important;
+            list-style: none !important
           }
         </style>
-      `;
-      const currentTitle = sessions.value.find(s => s.id === currentSessionId.value)?.title || '对话记录';
+      `
+      const currentTitle = sessions.value.find(s => s.id === currentSessionId.value)?.title || '对话记录'
       const md = new MarkdownIt({ html: true, breaks: true })
       const element = document.createElement('div')
-      element.style.width = '700px';
+      element.style.width = '700px'
       element.style.padding = '40px'
       element.style.fontFamily = '"Helvetica Neue", Helvetica, "PingFang SC", "Microsoft YaHei", sans-serif'
       element.style.color = '#333'
       element.style.backgroundColor = '#fff'
       let htmlContent =style +  `
-        <div style="text-align: center; margin-bottom: 40px;">
-          <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">${currentTitle}</h1>
-          <p style="color: #888; font-size: 12px;">导出时间: ${new Date().toLocaleString()}</p>
-          <hr style="border: none; border-top: 1px solid #eee; margin-top: 20px;" />
+        <div style="text-align: center  margin-bottom: 40px ">
+          <h1 style="font-size: 24px  font-weight: bold  margin-bottom: 10px ">${currentTitle}</h1>
+          <p style="color: #888  font-size: 12px ">导出时间: ${new Date().toLocaleString()}</p>
+          <hr style="border: none  border-top: 1px solid #eee  margin-top: 20px " />
         </div>
       `
       messages.value.forEach(msg => {
@@ -226,11 +226,11 @@ export function useChat() {
         const renderedContent = md.render(msg.content)
         console.log("renderedContent:", renderedContent)
         htmlContent += `
-          <div style="margin-bottom: 25px; line-height: 1.6;">
-            <div style="font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #000;">
+          <div style="margin-bottom: 25px  line-height: 1.6 ">
+            <div style="font-weight: bold  font-size: 14px  margin-bottom: 5px  color: #000 ">
               ${roleName}:
             </div>
-            <div style="font-size: 14px; color: #333; text-align: justify;">
+            <div style="font-size: 14px  color: #333  text-align: justify ">
               ${renderedContent}
             </div>
           </div>
