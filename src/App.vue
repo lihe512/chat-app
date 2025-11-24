@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useChat } from '@/composables/useChat'
+import { useGlobalControl } from '@/composables/globalControl'
 import ChatSidebar from './components/MainPart/ChatSidebar.vue'
 import ChatInput from './components/MainPart/ChatInput.vue'
 import FloatingButton from './components/MainPart/FloatingButton.vue'
@@ -13,15 +14,17 @@ import {
 const {
   init
 } = useChat()
+const {initTheme} = useGlobalControl()
 onMounted(() => {
   init()  // 初始化加载历史
-}) 
+  initTheme()
+})
 </script>
 
 <template>
-  <div class="flex h-screen bg-gray-50 overflow-hidden relative">
+  <div class="flex h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 overflow-hidden relative">
     <ChatSidebar></ChatSidebar>
-    <main class="flex-1 flex flex-col h-full relative w-full transition-all duration-300">
+    <main class="flex-1 flex flex-col h-full relative w-full transition-all duration-300 ">
       <HeaderBar></HeaderBar>
       <ChatBox></ChatBox>
       <ChatInput></ChatInput>
