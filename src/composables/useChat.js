@@ -265,7 +265,7 @@ export function useChat() {
     if(aiMsgIndex === -1) return
     const userMsg = messages.value[aiMsgIndex - 1]
     if(!userMsg || userMsg.role !== 'user') return//找不到对应的用户消息
-
+    const userMsgIndex = aiMsgIndex - 1
     const aiMsg = messages.value[aiMsgIndex]
     // 重置AI消息
     aiMsg.content = ''
@@ -273,7 +273,9 @@ export function useChat() {
     // isLoading.value = true
     // scrollToBottom()
     // await mockStreamResponse(aiMsg.id, userMsg.content)
-    await sendMessage(userMsg.content);
+    const textToResend = userMsg.content
+    messages.value.splice(userMsgIndex, 2)//删除原来的AI消息
+    await sendMessage(textToResend)
   }
   return {
     sessions,
