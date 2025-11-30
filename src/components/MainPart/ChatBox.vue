@@ -28,6 +28,21 @@ const handleCopy = (msg)=>{
     console.error("复制失败",error)
   }
 }
+
+// 解析消息内容，分离图片和文本
+const parseMessage = (msg) => {
+  try {
+    // 尝试解析JSON。如果成功，说明是带图片的消息
+    const parsed = JSON.parse(msg.content);
+    if (parsed && parsed.imageUrl) {
+      return { text: parsed.text || '', imageUrl: parsed.imageUrl };
+    }
+  } catch (e) {
+    // 解析失败，说明是纯文本消息
+  }
+  // 对于AI消息或纯文本用户消息，直接返回
+  return { text: msg.content, imageUrl: msg.imageUrl || null };
+}
 </script>
 
 <template>
@@ -48,17 +63,25 @@ const handleCopy = (msg)=>{
               <div class="text-xs text-gray-400 mb-1 px-1" :class="{'text-right': msg.role === 'user'}">
                 {{ msg.role === 'user' ? '我' : 'AI' }}
               </div>
-              <div class="p-3.5 rounded-2xl text-sm shadow-sm leading-relaxed border"
+              <div class="p-3.5 rounded-2xl text-sm shadow-sm leading-relaxed border relative"
                    :class="msg.role === 'user' ? 'bg-blue-600 text-white border-blue-600 rounded-tr-none' : 'bg-white text-gray-800 border-gray-100 rounded-tl-none'">
 
                 <div v-if="msg.status === 'loading'" class="flex items-center gap-2">
                    <Loader2 class="animate-spin w-4 h-4" /> 思考中...
                 </div>
-                <ChatCard v-else-if="msg.type === 'card'" :data="msg.cardData" />
-                <MarkdownRenderer v-else :content="msg.content" />
-                <!-- <div v-else class="whitespace-pre-wrap">
-                  {{ msg.content }}
-                </div> -->
+                <div v-else-if="msg.role === 'user'">
+                  <!-- 用户消息需要解析：图片以缩略图形式展示 -->
+                  <a v-if="parseMessage(msg).imageUrl" :href="parseMessage(msg).imageUrl" target="_blank" rel="noopener noreferrer" class="block mb-2 w-fit">
+                    <img :src="parseMessage(msg).imageUrl" class="w-28 h-28 rounded-lg object-cover cursor-pointer hover:opacity-90 transition-opacity" alt="用户上传的图片" />
+                  </a>
+                  <!-- 文本内容 -->
+                  <MarkdownRenderer v-if="parseMessage(msg).text" :content="parseMessage(msg).text" />
+                </div>
+                <div v-else> <!-- AI 消息直接渲染 -->
+                  <img v-if="msg.imageUrl" :src="msg.imageUrl" class="rounded-lg max-w-xs mb-2" alt="AI生成的图片" />
+                  <ChatCard v-if="msg.type === 'card'" :data="msg.cardData" />
+                  <MarkdownRenderer v-else-if="msg.content" :content="msg.content" />
+                </div>
               </div>
               <div v-if="msg.role === 'assistant' && msg.status === 'done'" class="flex items-center gap-2 mt-1 ml-1 opacity-0 group-hover:opacity-100 transition-opacity">
 
