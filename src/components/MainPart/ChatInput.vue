@@ -89,6 +89,7 @@ const handleFileChange = (event) => {
 const removeFile = (fileId) => {
   const fileToRemove = uploadedFiles.value.find(f => f.id === fileId)
   uploadedFiles.value = uploadedFiles.value.filter(f => f.id !== fileId)
+  console.log(fileToRemove)
 }
 
 // 语音识别功能

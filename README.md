@@ -9,7 +9,7 @@ This template should help get you started developing with Vue 3 in Vite.
 ## Recommended Browser Setup
 
 - Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd) 
+  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
   - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
 - Firefox:
   - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
@@ -31,14 +31,11 @@ npm install
 npm run dev
 ```
 
-### Compile and Minify for Production
+### 细节
 
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+核心框架： Vue3
+   构建工具： Vite
+   UI 框架： Tailwind CSS
+   图标库： lucide-vue-next
+   Markdown 解析： markdown-it
+   代码高亮： highlight.js

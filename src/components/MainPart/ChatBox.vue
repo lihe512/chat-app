@@ -39,6 +39,7 @@ const parseMessage = (msg) => {
     }
   } catch (e) {
     // 解析失败，说明是纯文本消息
+    console.log(e)
   }
   // 对于AI消息或纯文本用户消息，直接返回
   return { text: msg.content, imageUrl: msg.imageUrl || null };
