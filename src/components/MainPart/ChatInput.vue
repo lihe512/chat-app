@@ -56,37 +56,38 @@ const triggerFileUpload = () => {
 }
 
 const handleFileChange = (event) => {
-  const file = event.target.files[0]
+  const file = event.target.files[0];
   if (!file || !file.type.startsWith('image/') || uploadedFiles.value.length > 0) {
-    return
+    return;
   }
 
-  const filePreview = {
-    id: Date.now(),
-    file: file,
-    name: file.name,
-    url: URL.createObjectURL(file),
-    progress: 0
-  }
-  uploadedFiles.value.push(filePreview)
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const filePreview = {
+      id: Date.now(),
+      file: file,
+      name: file.name,
+      url: e.target.result, // 使用 Base64 Data URL
+      progress: 0
+    };
+    uploadedFiles.value.push(filePreview);
 
-  // 模拟上传进度
-  const interval = setInterval(() => {
-    if (filePreview.progress < 100) {
-      filePreview.progress += 10
-    } else {
-      clearInterval(interval)
-    }
-  }, 50)
+    // 模拟上传进度
+    const interval = setInterval(() => {
+      if (filePreview.progress < 100) {
+        filePreview.progress += 10;
+      } else {
+        clearInterval(interval);
+      }
+    }, 50);
+  };
+  reader.readAsDataURL(file); // 读取文件为 Base64
 
-  event.target.value = '' // 清空文件选择，以便下次能选择同一个文件
-}
+  event.target.value = ''; // 清空文件选择，以便下次能选择同一个文件
+};
 
 const removeFile = (fileId) => {
   const fileToRemove = uploadedFiles.value.find(f => f.id === fileId)
-  if (fileToRemove) {
-    URL.revokeObjectURL(fileToRemove.url) // 释放内存
-  }
   uploadedFiles.value = uploadedFiles.value.filter(f => f.id !== fileId)
 }
 

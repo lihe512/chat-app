@@ -63,8 +63,8 @@ const parseMessage = (msg) => {
               <div class="text-xs text-gray-400 mb-1 px-1" :class="{'text-right': msg.role === 'user'}">
                 {{ msg.role === 'user' ? '我' : 'AI' }}
               </div>
-              <div class="p-3.5 rounded-2xl text-sm shadow-sm leading-relaxed border relative"
-                   :class="msg.role === 'user' ? 'bg-blue-600 text-white border-blue-600 rounded-tr-none' : 'bg-white text-gray-800 border-gray-100 rounded-tl-none'">
+              <div class="p-3.5 rounded-2xl text-sm shadow-sm leading-relaxed border relative break-words"
+                   :class="msg.role === 'user' ? 'bg-blue-600 text-white border-blue-600 rounded-tr-none' : 'bg-white text-gray-800 border-gray-100 rounded-tl-none dark:bg-gray-900 dark:text-gray-200 dark:border-gray-800'">
 
                 <div v-if="msg.status === 'loading'" class="flex items-center gap-2">
                    <Loader2 class="animate-spin w-4 h-4" /> 思考中...
