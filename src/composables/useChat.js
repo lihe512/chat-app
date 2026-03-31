@@ -127,51 +127,56 @@ export function useChat() {
     if (!targetMsg) return
 
     try {
-      // 1. 构建上下文历史 (取最近5轮对话以平衡 Token 消耗和记忆)
+      // 1. 整理历史记录 (转换格式并限制长度)
       const history = messages.value
         .filter((m) => m.status === 'done' && m.content)
-        .slice(-10)
+        .slice(-6) // 取最近3轮对话
         .map((m) => ({
           role: m.role === 'user' ? 'user' : 'assistant',
           content: m.content,
         }))
 
-      // 2. 使用 fetch 请求后端流接口
+      // 2. 发起 Fetch 请求
       const response = await fetch(`${API_BASE_URL}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: userContent, history }),
       })
 
-      if (!response.body) throw new Error('ReadableStream not supported')
+      if (!response.body) throw new Error('浏览器不支持流式传输')
 
+      // 3. 读取流
       const reader = response.body.getReader()
       const decoder = new TextDecoder()
       let done = false
       let accumulatedContent = ''
 
-      // 3. 循环读取流片段
       while (!done) {
         const { value, done: doneReading } = await reader.read()
         done = doneReading
+
         const chunkValue = decoder.decode(value)
 
-        // 通义千问/OpenAI 的流格式通常以 "data: " 开头
+        // 解析 SSE 数据行 (data: {...})
         const lines = chunkValue.split('\n')
         for (const line of lines) {
           if (line.trim() === '' || line.includes('[DONE]')) continue
+
           if (line.startsWith('data:')) {
             try {
-              const data = JSON.parse(line.replace('data:', ''))
+              const jsonStr = line.replace(/^data:\s*/, '')
+              const data = JSON.parse(jsonStr)
               const content = data.choices[0]?.delta?.content || ''
+
               accumulatedContent += content
 
-              // 实时更新 UI 上的内容
+              // 关键：实时更新 Vue 的响应式引用，触发界面重绘
               targetMsg.content = accumulatedContent
-              // 触发自动滚动（如果你的 ChatBox 有监听内容变化）
+
+              // 触发自动滚动（需在 ChatBox.vue 中有滚动逻辑）
               nextTick(() => scrollToBottom())
             } catch (e) {
-              console.error('解析流数据出错', e)
+              // 部分 chunk 可能是非完整的 JSON，忽略解析失败的片段
             }
           }
         }
@@ -179,12 +184,12 @@ export function useChat() {
 
       targetMsg.status = 'done'
     } catch (error) {
-      console.error('AI请求失败:', error)
-      targetMsg.content = '抱歉，我现在无法连接到大脑，请检查网络或后端配置。'
+      console.error('AI请求出错:', error)
+      targetMsg.content = '服务连接异常，请检查后端。'
       targetMsg.status = 'error'
     } finally {
       isLoading.value = false
-      saveToStorage() // 保存到本地持久化
+      saveToStorage()
     }
   }
 
