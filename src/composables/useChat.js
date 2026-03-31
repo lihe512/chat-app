@@ -122,30 +122,61 @@ export function useChat() {
 
   // 修改 useChat.js
 
+  // src/composables/useChat.js (前端) 核心修改
+
   const requestAIResponse = async (msgId, userContent) => {
     const targetMsg = messages.value.find((m) => m.id === msgId)
     if (!targetMsg) return
 
-    try {
-      // 1. 整理历史记录 (转换格式并限制长度)
-      const history = messages.value
-        .filter((m) => m.status === 'done' && m.content)
-        .slice(-6) // 取最近3轮对话
-        .map((m) => ({
-          role: m.role === 'user' ? 'user' : 'assistant',
-          content: m.content,
-        }))
+    // 1. 解析用户载荷 (提取文本和图片)
+    let textToSend = userContent
+    let imageToSend = null
 
-      // 2. 发起 Fetch 请求
+    try {
+      // 尝试解析 ChatInput 传来的 JSON {"text":"...", "imageUrl":"..."}
+      const payload = JSON.parse(userContent)
+      textToSend = payload.text || ''
+      imageToSend = payload.imageUrl || null
+    } catch (e) {
+      // 如果报错，说明 userContent 就是纯文本字符串，保持原样即可
+    }
+
+    try {
+      // 2. 整理上下文历史（过滤掉未完成的消息，仅取最近 6 条）
+      const history = messages.value
+        .filter((m) => m.status === 'done' && m.content && m.id !== msgId)
+        .slice(-6)
+        .map((m) => {
+          // 如果历史消息是 JSON 字符串（带图），则只提取文本部分给模型参考
+          let content = m.content
+          try {
+            const p = JSON.parse(m.content)
+            content = p.text || ''
+          } catch (e) {}
+
+          return {
+            role: m.role === 'user' ? 'user' : 'assistant',
+            content: content,
+          }
+        })
+
+      // 3. 发起 Fetch 请求
       const response = await fetch(`${API_BASE_URL}/api/chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: userContent, history }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: textToSend,
+          history: history,
+          imageUrl: imageToSend, // 将 Base64 图片传给后端
+        }),
       })
 
+      if (!response.ok) throw new Error(`服务器响应异常: ${response.status}`)
       if (!response.body) throw new Error('浏览器不支持流式传输')
 
-      // 3. 读取流
+      // 4. 流式读取处理
       const reader = response.body.getReader()
       const decoder = new TextDecoder()
       let done = false
@@ -155,28 +186,32 @@ export function useChat() {
         const { value, done: doneReading } = await reader.read()
         done = doneReading
 
-        const chunkValue = decoder.decode(value)
+        const chunkValue = decoder.decode(value, { stream: true })
 
-        // 解析 SSE 数据行 (data: {...})
+        // 解析 SSE 数据行 (data: {"choices": [...]})
         const lines = chunkValue.split('\n')
         for (const line of lines) {
-          if (line.trim() === '' || line.includes('[DONE]')) continue
+          const trimmedLine = line.trim()
+          if (!trimmedLine || trimmedLine === 'data: [DONE]') continue
 
-          if (line.startsWith('data:')) {
+          if (trimmedLine.startsWith('data:')) {
             try {
-              const jsonStr = line.replace(/^data:\s*/, '')
+              const jsonStr = trimmedLine.replace(/^data:\s*/, '')
               const data = JSON.parse(jsonStr)
               const content = data.choices[0]?.delta?.content || ''
 
               accumulatedContent += content
 
-              // 关键：实时更新 Vue 的响应式引用，触发界面重绘
+              // 实时更新响应式变量，触发 UI 逐字显示
               targetMsg.content = accumulatedContent
 
-              // 触发自动滚动（需在 ChatBox.vue 中有滚动逻辑）
-              nextTick(() => scrollToBottom())
+              // 确保 DOM 更新后自动滚动到底部
+              nextTick(() => {
+                const chatBox = document.querySelector('.overflow-y-auto')
+                if (chatBox) chatBox.scrollTop = chatBox.scrollHeight
+              })
             } catch (e) {
-              // 部分 chunk 可能是非完整的 JSON，忽略解析失败的片段
+              // 忽略解析失败的碎片数据
             }
           }
         }
@@ -184,8 +219,8 @@ export function useChat() {
 
       targetMsg.status = 'done'
     } catch (error) {
-      console.error('AI请求出错:', error)
-      targetMsg.content = '服务连接异常，请检查后端。'
+      console.error('AI请求失败:', error)
+      targetMsg.content = `❌ 出错了: ${error.message}。请检查后端服务是否启动，或者图片是否过大。`
       targetMsg.status = 'error'
     } finally {
       isLoading.value = false
